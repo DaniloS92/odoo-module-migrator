@@ -104,11 +104,17 @@ class Migration():
 
         logger.info("Creating new branch '%s' ..." % (branch_name))
         _execute_shell(
-            "git checkout -b %(branch)s %(remote)s/%(version)s" % {
+            "git checkout --no-track -b %(branch)s %(remote)s/%(version)s" % {
                 'branch': branch_name,
                 'remote': remote_name,
                 'version': target_version,
             }, path=self._directory_path)
+
+        logger.info("Getting latest changes from old branch")
+        # Depth is added just in case you had a shallow git history
+        _execute_shell(
+            "git fetch --depth 9999999 %s %s" % (remote_name, init_version)
+        )
 
         _execute_shell(
             "git format-patch --keep-subject "
